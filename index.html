@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI TTS 음성 변환기</title>
+  <title>AI TTS 음성 비서</title>
   <style>
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -14,7 +13,6 @@
       font-family: Arial, sans-serif;
       color: #333;
     }
-
     .container {
       width: min(900px, 92%);
       margin: 40px auto;
@@ -23,38 +21,41 @@
       padding: 28px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16);
     }
-
+    /* 상단 로그인 바 스타일 */
+    .auth-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .auth-input {
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 150px;
+      outline: none;
+    }
     h1 {
       margin: 0 0 8px;
       text-align: center;
       font-size: 28px;
     }
-
     .subtitle {
       text-align: center;
       color: #777;
       margin-bottom: 24px;
       font-size: 14px;
     }
-
-    .info {
-      padding: 14px;
-      margin-bottom: 20px;
-      border-radius: 14px;
-      background: #e8f5e9;
-      color: #2e7d32;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
     .option-box {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
       margin-bottom: 14px;
     }
-
-    select, input {
+    select, input[type="number"] {
       height: 44px;
       padding: 0 12px;
       border: 1px solid #ddd;
@@ -62,10 +63,9 @@
       font-size: 14px;
       outline: none;
     }
-
     textarea {
       width: 100%;
-      min-height: 180px;
+      min-height: 140px;
       resize: vertical;
       padding: 16px;
       border: 1px solid #ddd;
@@ -75,17 +75,11 @@
       outline: none;
       font-family: Arial, sans-serif;
     }
-
     textarea:focus, select:focus, input:focus {
       border-color: #42a5f5;
       box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.15);
     }
-
-    .label {
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
+    .label { font-weight: bold; margin-bottom: 6px; margin-top: 14px;}
     .button-row {
       display: flex;
       gap: 10px;
@@ -93,7 +87,6 @@
       flex-wrap: wrap;
       margin-top: 14px;
     }
-
     button, .download-link {
       border: none;
       border-radius: 12px;
@@ -108,42 +101,17 @@
       align-items: center;
       justify-content: center;
     }
-
     button:hover, .download-link:hover {
       transform: translateY(-2px);
       opacity: 0.9;
     }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-      transform: none;
-    }
-
-    .make-btn {
-      background: #42a5f5;
-      color: white;
-    }
-
-    .clear-btn {
-      background: #b0bec5;
-      color: white;
-    }
-
-    .download-link {
-      background: #7e57c2;
-      color: white;
-    }
-
+    button:disabled { cursor: not-allowed; opacity: 0.6; transform: none; }
+    .make-btn { background: #42a5f5; color: white; }
+    .clear-btn { background: #b0bec5; color: white; }
+    .auth-btn { background: #37474f; color: white; height: 36px; font-size: 13px; border-radius: 8px;}
+    .download-link { background: #7e57c2; color: white; }
     .hidden { display: none; }
-
-    .status {
-      min-height: 24px;
-      margin-top: 14px;
-      color: #555;
-      font-size: 14px;
-    }
-
+    .status { min-height: 24px; margin-top: 14px; color: #555; font-size: 14px; text-align: center; font-weight: bold;}
     .result-box {
       margin-top: 20px;
       padding: 18px;
@@ -151,83 +119,148 @@
       background: #f7f9fb;
       border: 1px solid #edf1f5;
     }
-
-    audio {
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    .help {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #777;
+    audio { width: 100%; margin-top: 10px; }
+    .chat-box {
+      background: #f1f8ff;
+      padding: 14px;
+      border-radius: 12px;
+      border-left: 5px solid #42a5f5;
+      margin-top: 8px;
+      font-size: 15px;
       line-height: 1.6;
-    }
-
-    @media (max-width: 700px) {
-      .option-box { grid-template-columns: 1fr; }
-      .button-row { justify-content: stretch; }
-      button, .download-link { width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>AI TTS 음성 변환기</h1>
-    <div class="subtitle">텍스트를 AI 음성 mp3 파일로 변환합니다</div>
-
-    <div class="info">
-      현재 구조: GitHub Pages 화면 → Google Apps Script 서버 → OpenAI TTS API → mp3 음성 반환<br />
-      API Key는 index.html에 들어가지 않고 Apps Script의 스크립트 속성에 저장됩니다.
+    <div class="auth-bar" id="authBar">
+      <input type="email" id="emailInput" class="auth-input" placeholder="이메일">
+      <input type="password" id="passwordInput" class="auth-input" placeholder="비밀번호">
+      <button id="signUpBtn" class="auth-btn" style="background:#78909c;">회원가입</button>
+      <button id="signInBtn" class="auth-btn">로그인</button>
+    </div>
+    <div class="auth-bar hidden" id="welcomeBar">
+      <span id="userInfo" style="font-weight:bold; color:#555;"></span>
+      <button id="signOutBtn" class="auth-btn">로그아웃</button>
     </div>
 
-    <div class="option-box">
-      <select id="modelSelect">
-        <option value="tts-1">tts-1 빠른 생성</option>
-        <option value="tts-1-hd">tts-1-hd 고품질</option>
-      </select>
+    <h1>AI 음성 대화 서비스</h1>
+    <div class="subtitle">AI의 답변을 목소리(TTS)로 즉시 들어보세요</div>
 
-      <select id="voiceSelect">
-        <option value="alloy">alloy</option>
-        <option value="echo">echo</option>
-        <option value="fable">fable</option>
-        <option value="onyx">onyx</option>
-        <option value="nova">nova</option>
-        <option value="shimmer">shimmer</option>
-      </select>
-
-      <input id="speedInput" type="number" min="0.25" max="4.0" step="0.05" value="1.0" placeholder="속도" />
-    </div>
-
-    <div>
-      <div class="label">변환할 텍스트</div>
-      <textarea id="textInput" placeholder="음성으로 바꿀 문장을 입력하세요. 예: 안녕하세요. 오늘은 Firebase와 OpenAI API를 활용한 웹페이지 제작을 배워보겠습니다."></textarea>
-    </div>
-
-    <div class="button-row">
-      <button class="clear-btn" id="clearBtn">초기화</button>
-      <button class="make-btn" id="makeBtn">음성 만들기</button>
-    </div>
-
-    <div id="status" class="status"></div>
-
-    <div id="resultBox" class="result-box hidden">
-      <div class="label">생성된 음성</div>
-      <audio id="audioPlayer" controls></audio>
-      <div class="button-row">
-        <a id="downloadLink" class="download-link" href="#" download="tts-audio.mp3">mp3 다운로드</a>
+    <div id="mainApp">
+      <div class="option-box">
+        <select id="modelSelect">
+          <option value="tts-1">tts-1 빠른 생성</option>
+          <option value="tts-1-hd">tts-1-hd 고품질</option>
+        </select>
+        <select id="voiceSelect">
+          <option value="alloy">alloy</option>
+          <option value="echo">echo</option>
+          <option value="fable">fable</option>
+          <option value="onyx">onyx</option>
+          <option value="nova">nova</option>
+          <option value="shimmer">shimmer</option>
+        </select>
+        <input id="speedInput" type="number" min="0.25" max="4.0" step="0.05" value="1.0" placeholder="속도" />
       </div>
-    </div>
 
-    <div class="help">
-      긴 문장은 생성 시간이 오래 걸릴 수 있습니다. 처음에는 짧은 문장으로 테스트해보세요.<br />
-      속도는 0.25부터 4.0까지 조절할 수 있습니다.
+      <div>
+        <div class="label">AI에게 물어볼 내용 (질문 입력)</div>
+        <textarea id="textInput" placeholder="여기에 질문을 입력하고 아래 버튼을 누르세요."></textarea>
+      </div>
+
+      <div class="button-row">
+        <button class="clear-btn" id="clearBtn">초기화</button>
+        <button class="make-btn" id="makeBtn">AI 답변 & 음성 생성</button>
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <div id="aiReplyArea" class="hidden">
+        <div class="label">AI 답변 내용</div>
+        <div id="aiReplyText" class="chat-box"></div>
+      </div>
+
+      <div id="resultBox" class="result-box hidden">
+        <div class="label">생성된 AI 음성</div>
+        <audio id="audioPlayer" controls></audio>
+        <div class="button-row">
+          <a id="downloadLink" class="download-link" href="#" download="ai-audio.mp3">mp3 다운로드</a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzvCeCidpIBm3Ez_AbmzTRrvzCkPa_7x-irAazDPzljPmuqjjHZOqXxfyS1vNh7tX1/exec';
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+    // 💡여기에 본인의 Firebase project 설정값을 꼭 붙여넣으세요!
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const signInBtn = document.getElementById('signInBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const authBar = document.getElementById('authBar');
+    const welcomeBar = document.getElementById('welcomeBar');
+    const userInfo = document.getElementById('userInfo');
+
+    // 회원가입 로직
+    signUpBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if(!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => alert("회원가입 완료!"))
+        .catch(err => alert("회원가입 실패: " + err.message));
+    });
+
+    // 로그인 로직
+    signInBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if(!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
+      signInWithEmailAndPassword(auth, email, password)
+        .catch(err => alert("로그인 실패: " + err.message));
+    });
+
+    // 로그아웃 로직
+    signOutBtn.addEventListener('click', () => { signOut(auth); });
+
+    // 로그인 상태 변화 감지
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        userInfo.textContent = `${user.email}님 환영합니다!`;
+        authBar.classList.add('hidden');
+        welcomeBar.classList.remove('hidden');
+        makeBtn.disabled = false;
+      } else {
+        currentUser = null;
+        authBar.classList.remove('hidden');
+        welcomeBar.classList.add('hidden');
+        makeBtn.disabled = true;
+      }
+    });
+
+    // --- Google Apps Script API 통신 로직 ---
+    // ⚠️ 이전 단계에서 재배포한 새로운 GAS 웹앱 URL이 있다면 아래 주소를 변경해 주세요.
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzvCeCidpIBm3Ez_AbmzTRrvzCkPa_7x-irAazDPzljPmuqjjHZOqXxfyS1vNh7tX1/exec';
+    
     const textInput = document.getElementById('textInput');
     const modelSelect = document.getElementById('modelSelect');
     const voiceSelect = document.getElementById('voiceSelect');
@@ -235,72 +268,65 @@
     const makeBtn = document.getElementById('makeBtn');
     const clearBtn = document.getElementById('clearBtn');
     const statusBox = document.getElementById('status');
+    const aiReplyArea = document.getElementById('aiReplyArea');
+    const aiReplyText = document.getElementById('aiReplyText');
     const resultBox = document.getElementById('resultBox');
     const audioPlayer = document.getElementById('audioPlayer');
     const downloadLink = document.getElementById('downloadLink');
 
-    makeBtn.addEventListener('click', makeSpeech);
+    makeBtn.addEventListener('click', startAiAndTts);
     clearBtn.addEventListener('click', clearPage);
 
-    textInput.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter' && event.ctrlKey) {
-        makeSpeech();
-      }
-    });
-
-    async function makeSpeech() {
-      const text = textInput.value.trim();
-      const model = modelSelect.value;
-      const voice = voiceSelect.value;
-      const speed = Number(speedInput.value || 1.0);
-
-      if (!text) {
-        alert('음성으로 변환할 텍스트를 입력해주세요.');
-        return;
-      }
-
-      if (speed < 0.25 || speed > 4.0) {
-        alert('속도는 0.25부터 4.0 사이로 입력해주세요.');
-        return;
-      }
+    // AI 답변과 TTS 생성을 순차적으로 처리하는 핵심 함수
+    async function startAiAndTts() {
+      if (!currentUser) return alert("로그인이 필요합니다.");
+      const userQuestion = textInput.value.trim();
+      if (!userQuestion) return alert('AI에게 던질 질문을 입력해주세요.');
 
       try {
         setLoading(true);
+        aiReplyArea.classList.add('hidden');
         resultBox.classList.add('hidden');
-        statusBox.textContent = 'Apps Script 서버에 TTS 요청을 보내는 중입니다.';
+        
+        // 1단계: ChatGPT에게 질문하여 답변 텍스트 가져오기
+        statusBox.textContent = '🤖 AI가 답변을 생각하는 중입니다...';
+        const chatResponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ type: 'chat', text: userQuestion })
+        });
+        const chatData = await chatResponse.json();
+        if (chatData.error) throw new Error(chatData.error);
+        
+        const aiAnswer = chatData.reply;
+        aiReplyText.textContent = aiAnswer;
+        aiReplyArea.classList.remove('hidden');
 
-        const response = await fetch(APPS_SCRIPT_URL, {
+        // 2단계: 생성된 AI 답변을 그대로 TTS 서버로 보내 목소리로 변환하기
+        statusBox.textContent = '🎙️ AI 답변을 음성 파일로 변환하는 중입니다...';
+        const ttsResponse = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify({
             type: 'tts',
-            text: text,
-            model: model,
-            voice: voice,
-            speed: speed
+            text: aiAnswer,
+            model: modelSelect.value,
+            voice: voiceSelect.value,
+            speed: Number(speedInput.value || 1.0)
           })
         });
+        const ttsData = await ttsResponse.json();
+        if (ttsData.error) throw new Error(ttsData.error);
 
-        const data = await response.json();
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        if (!data.audioBase64) {
-          throw new Error('음성 데이터를 받지 못했습니다.');
-        }
-
-        const audioUrl = base64ToAudioUrl(data.audioBase64, 'audio/mpeg');
-
+        // 3단계: 완성된 오디오 브라우저에 장착 및 자동 재생
+        const audioUrl = base64ToAudioUrl(ttsData.audioBase64, 'audio/mpeg');
         audioPlayer.src = audioUrl;
         downloadLink.href = audioUrl;
-        downloadLink.download = makeFileName();
         resultBox.classList.remove('hidden');
-        statusBox.textContent = '음성 생성 완료';
+        statusBox.textContent = '✨ 성공적으로 완료되었습니다!';
+        audioPlayer.play(); // 음성 자동 재생
+        
       } catch (error) {
-        console.error(error);
-        statusBox.textContent = '요청 실패';
-        alert('오류가 발생했습니다.\n\n' + error.message);
+        statusBox.textContent = '❌ 작업 실패';
+        alert('오류가 발생했습니다: ' + error.message);
       } finally {
         setLoading(false);
       }
@@ -309,46 +335,28 @@
     function base64ToAudioUrl(base64, mimeType) {
       const byteCharacters = atob(base64);
       const byteArrays = [];
-
       for (let offset = 0; offset < byteCharacters.length; offset += 512) {
         const slice = byteCharacters.slice(offset, offset + 512);
         const byteNumbers = new Array(slice.length);
-
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
+        for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+        byteArrays.push(new Uint8Array(byteNumbers));
       }
-
-      const blob = new Blob(byteArrays, { type: mimeType });
-      return URL.createObjectURL(blob);
-    }
-
-    function makeFileName() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hour = String(now.getHours()).padStart(2, '0');
-      const minute = String(now.getMinutes()).padStart(2, '0');
-      return `tts-${year}${month}${day}-${hour}${minute}.mp3`;
+      return URL.createObjectURL(new Blob(byteArrays, { type: mimeType }));
     }
 
     function setLoading(isLoading) {
       makeBtn.disabled = isLoading;
-      makeBtn.textContent = isLoading ? '생성 중...' : '음성 만들기';
+      makeBtn.textContent = isLoading ? '처리 중...' : 'AI 답변 & 음성 생성';
     }
 
     function clearPage() {
       textInput.value = '';
       statusBox.textContent = '';
+      aiReplyText.textContent = '';
+      aiReplyArea.classList.add('hidden');
       audioPlayer.removeAttribute('src');
-      downloadLink.href = '#';
       resultBox.classList.add('hidden');
     }
   </script>
 </body>
 </html>
-
