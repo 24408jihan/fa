@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>보이스 크래프트</title>
+  <title>보이스 크래프트 | AI 보이스 스튜디오</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -24,7 +24,7 @@
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16);
     }
 
-    /* 상단 로그인/회원가입 바 (디자인을 해치지 않게 심플하게 배치) */
+    /* 상단 로그인/회원가입 바 */
     .auth-bar {
       display: flex;
       justify-content: flex-end;
@@ -182,8 +182,8 @@
       <button id="signOutBtn" class="auth-btn">로그아웃</button>
     </div>
 
-    <h1>AI TTS 음성 변환기</h1>
-    <div class="subtitle">텍스트를 AI 음성 mp3 파일로 변환합니다</div>
+    <h1>✨ 보이스 크래프트 (VoiceCraft)</h1>
+    <div class="subtitle">텍스트를 감성적인 AI 목소리로 변환하는 나만의 오디오 공방</div>
 
     <div id="mainApp">
       <div class="option-box">
@@ -234,7 +234,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // 💡 사용자님의 진짜 파이어베이스 설정값 입력 완료!
     const firebaseConfig = {
       apiKey: "AIzaSyBQfMN55VcllE9TAeyrzRHRyzsu2dT3bdA",
       authDomain: "project-f4bd5.firebaseapp.com",
@@ -245,7 +244,6 @@
       measurementId: "G-T52MEST67Q"
     };
 
-    // Firebase 초기화
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
@@ -260,7 +258,6 @@
     const welcomeBar = document.getElementById('welcomeBar');
     const userInfo = document.getElementById('userInfo');
 
-    // 회원가입
     signUpBtn.addEventListener('click', () => {
       const email = emailInput.value.trim();
       const password = passwordInput.value;
@@ -271,7 +268,6 @@
         .catch(err => alert("회원가입 실패: " + err.message));
     });
 
-    // 로그인
     signInBtn.addEventListener('click', () => {
       const email = emailInput.value.trim();
       const password = passwordInput.value;
@@ -281,29 +277,28 @@
         .catch(err => alert("로그인 실패: " + err.message));
     });
 
-    // 로그아웃
     signOutBtn.addEventListener('click', () => {
       signOut(auth);
     });
 
-    // 로그인 상태 변화 실시간 감시
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
         userInfo.textContent = `${user.email}님 환영합니다!`;
         authBar.classList.add('hidden');
         welcomeBar.classList.remove('hidden');
-        makeBtn.disabled = false; // 로그인 시 버튼 활성화
+        makeBtn.disabled = false;
       } else {
         currentUser = null;
         authBar.classList.remove('hidden');
         welcomeBar.classList.add('hidden');
-        makeBtn.disabled = true; // 비로그인 시 버튼 비활성화
+        makeBtn.disabled = true;
+        resultBox.classList.add('hidden');
       }
     });
 
-    // --- 원본 TTS 통신 로직 그대로 유지 ---
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzvCeCidpIBm3Ez_AbmzTRrvzCkPa_7x-irAazDPzljPmuqjjHZOqXxfyS1vNh7tX1/exec';
+    // 🔗 사용자가 제공한 새로운 Apps Script 웹 앱 실행 URL 적용 완료
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXxGBsF7l8zWMDRyRd0DjONKR2kKZX7zR46LwW9iXIna7-dRFKR4uk2rR3psQ8R2qSJA/exec';
 
     const textInput = document.getElementById('textInput');
     const modelSelect = document.getElementById('modelSelect');
@@ -383,7 +378,7 @@
         console.error(error);
         statusBox.textContent = '요청 실패';
         alert('오류가 발생했습니다.\n\n' + error.message);
-      } finally {
+      } finaly {
         setLoading(false);
       }
     }
@@ -423,7 +418,7 @@
       makeBtn.textContent = isLoading ? '생성 중...' : '음성 만들기';
     }
 
-    function clearInterval() {
+    function clearPage() {
       textInput.value = '';
       statusBox.textContent = '';
       audioPlayer.removeAttribute('src');
