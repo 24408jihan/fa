@@ -322,8 +322,8 @@
     const auth = getAuth(app);
     let currentUser = null;
 
-    // 💡 새로운 구글 웹 앱 URL 주소 반영 완료!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbbyZafRQXMGhaEnXTJiRmAxo1-bD8UaH0CZnmlYe08Xpo7I6fnDgk0OnyukVkHbJynQMnA/exec';
+    // 💡 방금 주신 가장 최신의 구글 웹 앱 URL 주소 반영 완료!
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjQDlqwJs79Um3_0MuUVO2vdhoo589pFAnuJv6LEbJZ7essBfXhy3XhxhWZX23eDus-w/exec';
 
     // DOM 요소 선언
     const emailInput = document.getElementById('emailInput');
@@ -369,7 +369,7 @@
       statusBox.textContent = '';
     });
 
-    // Firebase 회원 메커니즘
+    // Firebase 회원 시스템
     signUpBtn.addEventListener('click', () => {
       const email = emailInput.value.trim(); const password = passwordInput.value;
       if(!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
